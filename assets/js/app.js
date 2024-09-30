@@ -74,6 +74,34 @@ const onEdit=(ele)=>{
     cl(editObj);
 }
 
+const onRemove=(ele)=>{
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+            let removeId=ele.closest("li").id;
+        
+            let getIndex=todoArr.findIndex(todo=>todo.todoId===removeId);
+        
+            todoArr.splice(getIndex,1);
+            localStorage.setItem("todoArr", JSON.stringify(todoArr));
+
+            snackbar(`the item is removed from successFully!`, `success`);
+        
+            ele.closest("li").remove();
+        }
+      });
+      
+        
+}
+
 
 const onTodoForm=(ele)=>{
     ele.preventDefault();
