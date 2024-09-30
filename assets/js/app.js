@@ -1,5 +1,9 @@
+const cl=console.log;
+
 const todoForm=document.getElementById("todoForm");
 const todoContainer=document.getElementById("todoContainer");
+const AddBtn=document.getElementById("AddBtn");
+const updateBtn=document.getElementById("updateBtn");
 const todoitemControl=document.getElementById("todoitem");
 
 function uuid() {
@@ -19,6 +23,15 @@ let todoArr=[
     // }
 ]
 
+const snackbar=(title,icon)=>{
+    swal.fire({
+        title:title,
+        icon:icon,
+        timer:2500,
+        confirmButtonColor:"#00ff00"
+    })
+}
+
 
 const tempTodo=(arr)=>{
     let result=`<ul class="list-group">`;
@@ -28,8 +41,8 @@ const tempTodo=(arr)=>{
                 <li class="list-group-item d-flex justify-content-between" id="${todo.todoId}">
                         <span>${todo.todoitem}</span>
                         <span>
-                           <i class="fa-solid fa-pen-to-square text-info"></i>
-                           <i class="fa-solid fa-trash text-danger"></i>
+                           <i class="fa-solid editBtn fa-pen-to-square text-info" onclick="onEdit(this)"></i>
+                           <i class="fa-solid removeBtn fa-trash text-danger" onclick="onRemove(this)"></i>
                         </span>
                 </li>
         `
@@ -48,6 +61,18 @@ if(todoArr.length > 0){
     tempTodo(todoArr);
 }
 
+
+const onEdit=(ele)=>{
+    let editId=ele.closest("li").id;
+    localStorage.setItem("editId", editId);
+    let editObj=todoArr.find(todo=>todo.todoId===editId);
+    
+    todoitemControl.value=editObj.todoitem;
+
+    AddBtn.classList.add("d-none");
+    updateBtn.classList.remove("d-none");
+    cl(editObj);
+}
 
 
 const onTodoForm=(ele)=>{
@@ -68,8 +93,8 @@ const onTodoForm=(ele)=>{
             list.innerHTML=`
                                 <span>${todoObj.todoitem}</span>
                                 <span>
-                                   <i class="fa-solid fa-pen-to-square text-info"></i>
-                                   <i class="fa-solid fa-trash text-danger"></i>
+                                   <i class="fa-solid editBtn fa-pen-to-square text-info" onclick="onEdit(this)"></i>
+                                   <i class="fa-solid removeBtn fa-trash text-danger" onclick="onRemove(this)"></i>
                                 </span>
             
             `
@@ -80,8 +105,43 @@ const onTodoForm=(ele)=>{
     }
 
     localStorage.setItem("todoArr", JSON.stringify(todoArr));
+
+    snackbar(`this ${todoObj.todoitem} item is Added successFully!`, `success`);
     ele.target.reset();
+}
+
+const onUpdateBtn=()=>{
+    let updateId=localStorage.getItem("editId");
+
+    cl(updateId);
+    let updateObj={
+        todoitem:todoitemControl.value,
+        todoId:updateId,
+    }
+
+    let getIndex=todoArr.findIndex(todo=>todo.todoId===updateId);
+
+    todoArr.splice(getIndex,1,updateObj);
+
+    localStorage.setItem("todoArr", JSON.stringify(todoArr));
+
+
+    let list=document.getElementById(updateId).firstElementChild;
+
+    list.innerHTML=`<span>${updateObj.todoitem}</span>`;
+
+    snackbar(`this ${updateObj.todoitem} item is update successFully!`, `success`);
+
+    AddBtn.classList.remove("d-none");
+    updateBtn.classList.add("d-none");
+
+    cl(todoArr);
+
+    cl(getIndex);
+
+    todoForm.reset();
 }
 
 
 todoForm.addEventListener("submit" , onTodoForm);
+updateBtn.addEventListener("click", onUpdateBtn);
